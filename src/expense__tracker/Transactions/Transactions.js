@@ -1,4 +1,4 @@
-import React from "react";
+import React,{useEffect} from "react";
 import { ImageBackground, SectionList, View, StyleSheet } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import moment from "moment";
@@ -8,18 +8,30 @@ import { Ebg1 } from "../../../assets/images";
 import theme, { Box, Text } from "../../components/theme";
 import { Chart, AddIcon, Delete } from "../Svgs";
 
-export const moneySign = "₦";
+export const moneySign = "Rs ";
 
 /* Add Transaction Component */
 import Expense from "./Expense";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteTransaction } from "../../../store/actions/transactionActions";
+import { deleteTransaction,update } from "../../../store/actions/transactionActions";
 import Top from "./Top";
 
 const Transactions = ({ navigation }) => {
+
   const { navigate } = navigation;
   const dispatch = useDispatch();
+  useEffect(()=>{
+    
+    
+    let timer1 = setTimeout(() => dispatch(update()), 5000);
 
+      // this will clear Timeout
+      // when component unmount like in willComponentUnmount
+      // and show will not change to true
+      return () => {
+        clearTimeout(timer1);}
+
+  });
   const active = new Animated.Value(0);
   const transition = withTransition(active, { duration: 200 });
 
@@ -31,10 +43,10 @@ const Transactions = ({ navigation }) => {
     dispatch(deleteTransaction(id));
   };
 
-  const { transactions } = useSelector((state) => state.trs);
+  const { filtered } = useSelector((state) => state.trs);
 
   const DATA = Object.values(
-    transactions.reduce((acc, item) => {
+    filtered.reduce((acc, item) => {
       if (!acc[item.addedtime])
         acc[item.addedtime] = {
           title: item.addedtime,
@@ -49,22 +61,22 @@ const Transactions = ({ navigation }) => {
 
   /* Price calculations */
 
-  const allDates = transactions
+  const allDates = filtered
     .map(({ addedtime }) => addedtime)
     .filter(function (value, index, array) {
       return array.indexOf(value) == index;
     });
 
   const Prices = ({ time }) => {
-    const prices = transactions
+    var prices = filtered
       .filter(({ addedtime }) => addedtime == time)
       .map(({ price }) => {
         return price;
       });
-    const sum = eval(prices.join("+"));
+   var sum = eval(prices.join("+"));
 
     return (
-      <Text color="silver1">{sum > 0 ? `₦${sum}` : `- ₦${Math.abs(sum)}`}</Text>
+      <Text color="silver1">{sum > 0 ? `Rs ${sum}` : `- Rs ${Math.abs(sum)}`}</Text>
     );
   };
 

@@ -2,10 +2,17 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Box, Text } from "../../components/theme";
 import { Chart } from "../Svgs";
+import { filterContests } from "../../../store/actions/transactionActions";
+import { Searchbar } from 'react-native-paper';
+
+
 
 const Top = () => {
-  const dispatch = useDispatch();
-
+ const dispatch = useDispatch();
+const [searchQuery, setSearchQuery] = useState('');
+const onChangeSearch = (text) =>{ 
+  setSearchQuery(text)
+  dispatch(filterContests(text))};
   const { transactions } = useSelector((state) => state.trs);
 
   const prices = transactions.map((transaction) => transaction.price);
@@ -38,12 +45,11 @@ const Top = () => {
           <Text
             textAlign="center"
             fontFamily="SFBOLD"
-            textAlign="center"
             fontSize={13}
             color="green"
             fontWeight="700"
           >
-            ₦{income}
+            Rs {income}
           </Text>
         </Box>
         <Box>
@@ -57,13 +63,12 @@ const Top = () => {
           </Text>
           <Text
             textAlign="center"
-            textAlign="center"
             fontSize={13}
             color="red"
             fontWeight="700"
             fontFamily="SFBOLD"
           >
-            -₦{expense}
+            -Rs {expense}
           </Text>
         </Box>
         <Box>
@@ -82,10 +87,15 @@ const Top = () => {
             fontSize={13}
             color="brown"
           >
-            ₦{balance}
+            Rs {balance}
           </Text>
         </Box>
       </Box>
+      <Searchbar
+      placeholder="Search"
+      onChangeText={onChangeSearch}
+      value={searchQuery}
+    />
     </Box>
   );
 };

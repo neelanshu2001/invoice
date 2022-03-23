@@ -1,5 +1,5 @@
-import React from "react";
-import { View, StyleSheet } from "react-native";
+import React,{useState} from "react";
+import { View, StyleSheet,ScrollView } from "react-native";
 import {
   TouchableOpacity,
   TouchableWithoutFeedback,
@@ -11,9 +11,13 @@ import theme, { Box, Text } from "../../components/theme";
 import { Delete } from "../Svgs";
 
 const Expense = ({ index, transition, onTap, onDelete, item, allDates }) => {
+  const [open,setOpen]=useState(false)
   const isActive = eq(transition, index);
   const activeTransition = withTransition(isActive, { duration: 200 });
 
+  const toggle=()=>{
+    setOpen(!open)
+  }
   const delX = interpolate(activeTransition, {
     inputRange: [0, 1],
     outputRange: [-100, 20],
@@ -33,14 +37,14 @@ const Expense = ({ index, transition, onTap, onDelete, item, allDates }) => {
       >
         <Animated.View>
           <Box
-            overflow="hidden"
+            overflow="visible"
             paddingHorizontal="l"
             borderBottomWidth={1}
             borderBottomColor="silver"
             height={50}
             position="relative"
           >
-            <View style={[StyleSheet.absoluteFill, {}]}>
+            <ScrollView style={[StyleSheet.absoluteFill, {}]}>
               <Animated.View
                 style={{
                   justifyContent: "space-between",
@@ -50,7 +54,23 @@ const Expense = ({ index, transition, onTap, onDelete, item, allDates }) => {
                   padding: theme.spacing.l,
                 }}
               >
-                <Animated.Text>{item.title}</Animated.Text>
+                <Animated.View style={{flexDirection:"column"}}>
+                <TouchableOpacity
+                  onPress={() => {
+                    toggle();
+                  }}
+                >
+                <Animated.View style={{flexDirection: "row",justifyContent: "space-between"}}>
+                  <Animated.View style={{paddingHorizontal:10, backgroundColor:item.autoDebit.valid?'#94F986':'',borderRadius:4}}>
+                  <Animated.Text style={{fontWeight:'bold'}} >{item.title}</Animated.Text>
+                  </Animated.View>
+                  <Animated.View>
+                  <Animated.Text style={{marginHorizontal:theme.spacing.l, backgroundColor:'#349A72',paddingHorizontal:10,color:'#fff'}}>{item.type}</Animated.Text>
+                  </Animated.View>
+                </Animated.View>
+                </TouchableOpacity>
+                {open?(<View><Animated.Text style={{fontSize:12,fontStyle:"italic",textAlign:"center"}}>{"Description : "} {item.description}</Animated.Text>{item.autoDebit.valid?<View><Animated.Text style={{fontSize:12,fontStyle:"italic",textAlign:"center"}}>{"Debt : "} {item.autoDebit.price}</Animated.Text><Animated.Text style={{fontSize:12,fontStyle:"italic",textAlign:"center"}}>{"Scheduled : "} {new Date(item.autoDebit.nextTime).toUTCString()}</Animated.Text></View>:null}</View>):null}
+                </Animated.View>
                 <Animated.Text
                   style={{
                     opacity: hidePrice,
@@ -58,11 +78,11 @@ const Expense = ({ index, transition, onTap, onDelete, item, allDates }) => {
                   }}
                 >
                   {item.price > 0
-                    ? `₦${item.price}`
-                    : `- ₦${Math.abs(item.price)}`}
+                    ? `Rs ${item.price}`
+                    : `- Rs ${Math.abs(item.price)}`}
                 </Animated.Text>
               </Animated.View>
-            </View>
+            </ScrollView>
 
             <Animated.View
               style={{

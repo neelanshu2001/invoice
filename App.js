@@ -36,12 +36,9 @@ export default function App() {
       <ThemeProvider {...{ theme }}>
         <LoadAssets {...{ assets, fonts }}>
           <SafeAreaProvider>
-            <AppStack.Navigator headerMode="none" initialRouteName="AllApps">
-              <AppStack.Screen
-                name="AllApps"
-                component={AllAppsStackNavigator}
-              />
-              <AppStack.Screen name="Crypto" component={Cryptonavigator} />
+            <AppStack.Navigator headerMode="none" initialRouteName="ExpenseTracker">
+              
+              
               <AppStack.Screen
                 name="ExpenseTracker"
                 component={ExpenseNavigator}

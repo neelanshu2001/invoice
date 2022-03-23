@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { StyleSheet, Dimensions, TextInput } from "react-native";
+import { StyleSheet, Dimensions, TextInput,Picker } from "react-native";
 import {
   BorderlessButton,
   TouchableOpacity,
@@ -10,6 +10,8 @@ import theme, { Box, Text } from "../../components/theme";
 import { BackArrow } from "../Svgs";
 import { addTransaction } from "../../../store/actions/transactionActions";
 import { useDispatch } from "react-redux";
+import CheckBox from '@react-native-community/checkbox';
+import Animated from "react-native-reanimated";
 
 /* Dimension */
 const { width, height } = Dimensions.get("window");
@@ -30,6 +32,9 @@ const Add = ({ navigation }) => {
   const { navigate } = navigation;
   const [price, setPrice] = useState("");
   const [title, setTitle] = useState("");
+  const [type, setType] = useState("");
+  const [description, setDescription] = useState("");
+  const [autoDebit, setautoDebit] = useState({valid:false,nextTime:null,price:"",type:"1 min"});
   const titleRef = useRef(null);
 
   const onPop = () => {
@@ -41,13 +46,19 @@ const Add = ({ navigation }) => {
     const transaction = {
       price,
       title,
+      description,
+      type,
+      autoDebit,
     };
 
-    if (!price || !title) return alert("Details Empty");
+    if (!price || !title || !description || !type) return alert("Details Empty");
 
     dispatch(addTransaction(transaction));
     setPrice("");
     setTitle("");
+    setDescription("");
+    setType("");
+    setautoDebit({valid:false,nextTime:null,price:"",type:"1 min"});
     navigate("Transactions");
   };
 
@@ -69,7 +80,7 @@ const Add = ({ navigation }) => {
         </Text>
       </Box>
 
-      <Box flexDirection="row" flexDirection="column" marginTop="xl">
+      <Box  flexDirection="column" marginTop="xl">
         <Box
           justifyContent="space-between"
           flexDirection="row"
@@ -79,7 +90,7 @@ const Add = ({ navigation }) => {
           marginTop="m"
         >
           <Text variant="title" color="primary">
-            ₦
+            
           </Text>
 
           <TextInput
@@ -99,7 +110,7 @@ const Add = ({ navigation }) => {
           />
 
           <Text variant="title" color="primary" style={{ fontSize: 20 }}>
-            NGN
+            INR
           </Text>
         </Box>
 
@@ -118,6 +129,82 @@ const Add = ({ navigation }) => {
           />
         </Box>
 
+        <Box marginTop="xl" borderBottomWidth={2}>
+          <TextInput
+            ref={titleRef}
+            placeholderTextColor={theme.colors.primary}
+            placeholder="Type"
+            defaultValue={type}
+            style={{
+              fontSize: 12,
+              fontFamily: "RRegular",
+              width: "80%",
+            }}
+            onChangeText={(type) => setType(type)}
+          />
+        </Box>
+
+        <Box marginTop="xl" borderBottomWidth={2}>
+          <TextInput
+            ref={titleRef}
+            placeholderTextColor={theme.colors.primary}
+            placeholder="Description"
+            defaultValue={description}
+            style={{
+              fontSize: 12,
+              fontFamily: "RRegular",
+              width: "80%",
+            }}
+            onChangeText={(description) => setDescription(description)}
+          />
+        </Box>
+        <Box  style={{flexDirection:'row',alignItems:'center',marginTop:2}}>
+        <CheckBox
+    disabled={false}
+    value={autoDebit.valid}
+    onValueChange={(newValue) => setautoDebit({...autoDebit,valid:newValue})}
+  />
+  <Text style={{color:'#000'}}>AutoDebit</Text>
+  </Box>
+  {autoDebit.valid?
+      <Box>
+        <Picker selectedValue={autoDebit.type} style={{}} onValueChange={(itemValue,itemIndex)=>{setautoDebit({...autoDebit,
+        type:itemValue})}}>
+          <Picker.Item label="1 min" value="1 min"/>
+          <Picker.Item label="1 month" value="1 month"/>
+          <Picker.Item label="half year" value="half year"/>
+          <Picker.Item label="year" value="year"/>
+        </Picker> 
+        <Box
+          justifyContent="space-between"
+          flexDirection="row"
+          alignItems="center"
+          borderBottomWidth={2}
+          paddingBottom="s"
+          marginTop="m"
+        >
+        <TextInput
+        placeholderTextColor={theme.colors.primary}
+        placeholder="Debt"
+        keyboardType="number-pad"
+        style={{
+          paddingVertical: 4,
+          paddingLeft:10,
+          fontSize: 15,
+          fontFamily: "RRegular",
+          width: "80%",
+        }}
+        onChangeText={(price) => setautoDebit({...autoDebit,price})}
+        autoFocus={true}
+        onSubmitEditing={() => titleRef.current.focus()}
+        defaultValue={autoDebit.price}
+      />
+
+      <Text variant="title" color="primary" style={{ fontSize: 20 }}>
+        INR
+      </Text>
+      </Box>
+      </Box>:null}
         <Box marginTop="xl">
           <BorderlessButton onPress={onSubmit}>
             <Box
@@ -131,6 +218,7 @@ const Add = ({ navigation }) => {
             </Box>
           </BorderlessButton>
         </Box>
+       
       </Box>
     </Box>
   );
